@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: meu-nginx
+  name: meu-nginx
+  namespace: giropops
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: meu-nginx
+  template:
+    metadata:
+      labels:
+        app: meu-nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: nginx
+  name: nginx
+  namespace: giropops
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 31397
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: meu-nginx
+  sessionAffinity: None
+  type: NodePort
